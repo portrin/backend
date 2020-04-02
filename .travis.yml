@@ -1,22 +1,23 @@
 language: node_js
+
 node_js:
-- node
+  - node
+
 cache: npm
+
 services:
-- docker
-stages:
-- name: run test
-  if: type = push
-- name: docker build to docker hub
-  if: type = push
-jobs:
-  include:
-  - stage: run test
-    script:
-    - npm run test
-  - stage: docker build to docker hub
-    script:
-    - bash ./scripts/push-backend-image.sh
+  - docker
+
+addons:
+  ssh_known_hosts: 128.199.211.41
+
+branches: 'staging'
+
 before_install:
-- openssl aes-256-cbc -K $encrypted_0ddd2445e49f_key -iv $encrypted_0ddd2445e49f_iv
-  -in travis_rsa.enc -out travis_rsa -d
+  - openssl aes-256-cbc -K $encrypted_0ddd2445e49f_key -iv $encrypted_0ddd2445e49f_iv
+    -in travis_rsa.enc -out travis_rsa -d
+  - chmod 600 travis_rsa
+  - mv travis_rsa ~/.ssh/id_rsa
+
+after_success:
+  - bash ./scripts/hardcode_deploy.sh
